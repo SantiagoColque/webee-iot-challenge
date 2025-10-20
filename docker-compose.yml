@@ -1,0 +1,45 @@
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: unless-stopped
+    #env_file: 
+      #- ./backend/.env
+    environment:
+      # fallback si no usás .env
+      MONGODB_URL: mongodb://mongo:27017/iot_challenge
+      PORT: "3000"
+      HOST: "0.0.0.0"
+    depends_on:
+      - mongo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: unless-stopped
+    environment:
+      NG_APP_API_URL: http://backend:3000
+    depends_on:
+      - backend
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  mongo_data:

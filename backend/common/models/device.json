@@ -1,0 +1,46 @@
+{
+  "name": "Device",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "location": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "inactive"],
+      "default": "active"
+    },
+    "createdAt": {
+      "type": "date",
+      "default": "$now"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "ports": {
+      "type": "hasMany",
+      "model": "Port",
+      "foreignKey": "deviceId"
+    },
+    "deviceLogs": {
+      "type": "hasMany",
+      "model": "DeviceLog",
+      "foreignKey": "deviceId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

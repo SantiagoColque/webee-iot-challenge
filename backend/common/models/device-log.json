@@ -1,0 +1,45 @@
+{
+  "name": "DeviceLog",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "deviceId": {
+      "type": "string",
+      "required": true
+    },
+    "portId": {
+      "type": "string",
+      "required": true
+    },
+    "value": {
+      "type": "number",
+      "required": true
+    },
+    "timestamp": {
+      "type": "date",
+      "default": "$now"
+    },
+    "data": {
+      "type": "object",
+      "description": "Datos adicionales del sensor"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "device": {
+      "type": "belongsTo",
+      "model": "Device",
+      "foreignKey": "deviceId"
+    },
+    "port": {
+      "type": "belongsTo",
+      "model": "Port",
+      "foreignKey": "portId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

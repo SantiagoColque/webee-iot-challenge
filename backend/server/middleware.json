@@ -1,0 +1,23 @@
+{
+  "initial": {
+    "cors": {
+      "params": {
+        "origin": true,
+        "credentials": true
+      }
+    }
+  },
+  "session": {},
+  "auth": {},
+  "parse": {},
+  "routes": {
+    "loopback#rest": {
+      "paths": [
+        "${restApiRoot}"
+      ]
+    }
+  },
+  "files": {},
+  "final": {},
+  "error": {}
+}

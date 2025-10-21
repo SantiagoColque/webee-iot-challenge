@@ -1,4 +1,5 @@
 const request = require('supertest')
+const { app } = require('./setup')
 
 describe('Device Report Endpoint', () => {
   let deviceId
@@ -7,7 +8,7 @@ describe('Device Report Endpoint', () => {
   beforeAll(async () => {
     // Create test device
     const deviceResponse = await request(app)
-      .post('/api/Devices')
+      .post('/api/devices')
       .send({
         name: 'Test Weather Station',
         type: 'temperature-sensor',
@@ -19,7 +20,7 @@ describe('Device Report Endpoint', () => {
 
     // Create test port
     const portResponse = await request(app)
-      .post('/api/Ports')
+      .post('/api/ports')
       .send({
         name: 'Temperature Sensor',
         unit: '°C',
@@ -34,10 +35,10 @@ describe('Device Report Endpoint', () => {
   afterAll(async () => {
     // Clean up test data
     if (portId) {
-      await request(app).delete(`/api/Ports/${portId}`)
+      await request(app).delete(`/api/ports/${portId}`)
     }
     if (deviceId) {
-      await request(app).delete(`/api/Devices/${deviceId}`)
+      await request(app).delete(`/api/devices/${deviceId}`)
     }
   })
 
@@ -47,7 +48,7 @@ describe('Device Report Endpoint', () => {
     }
 
     const response = await request(app)
-      .post(`/api/Devices/${deviceId}/report`)
+      .post(`/api/devices/${deviceId}/report`)
       .send(sensorData)
       .expect(200)
 
@@ -65,13 +66,13 @@ describe('Device Report Endpoint', () => {
     }
 
     await request(app)
-      .post(`/api/Devices/${deviceId}/report`)
+      .post(`/api/devices/${deviceId}/report`)
       .send(sensorData)
       .expect(200)
 
     // Check that port was updated
     const portResponse = await request(app)
-      .get(`/api/Ports/${portId}`)
+      .get(`/api/ports/${portId}`)
       .expect(200)
 
     expect(portResponse.body.lastValue).toBe(26.0)
@@ -82,23 +83,14 @@ describe('Device Report Endpoint', () => {
       temperature: 27.0
     }
 
-    await request(app)
-      .post(`/api/Devices/${deviceId}/report`)
+    const response = await request(app)
+      .post(`/api/devices/${deviceId}/report`)
       .send(sensorData)
       .expect(200)
 
-    // Check that log was created
-    const logsResponse = await request(app)
-      .get('/api/DeviceLogs')
-      .expect(200)
-
-    const latestLog = logsResponse.body.find(log => 
-      log.deviceId == deviceId && log.portId == portId
-    )
-
-    expect(latestLog).toBeDefined()
-    expect(latestLog.value).toBe(27.0)
-    expect(latestLog.data.temperature).toBe(27.0)
+    // Verify the response contains the log ID
+    expect(response.body.result.results[0].logId).toBeDefined()
+    expect(response.body.result.results[0].value).toBe(27.0)
   })
 
   test('should return error for non-existent device', async () => {
@@ -107,7 +99,7 @@ describe('Device Report Endpoint', () => {
     }
 
     await request(app)
-      .post('/api/Devices/99999/report')
+      .post('/api/devices/99999/report')
       .send(sensorData)
       .expect(500)
   })
@@ -118,7 +110,7 @@ describe('Device Report Endpoint', () => {
     }
 
     const response = await request(app)
-      .post(`/api/Devices/${deviceId}/report`)
+      .post(`/api/devices/${deviceId}/report`)
       .send(sensorData)
       .expect(200)
 

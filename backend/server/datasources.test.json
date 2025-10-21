@@ -1,0 +1,12 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "mongodb",
+    "url": "mongodb://mongo:27017/iot_test",
+    "host": "mongo",
+    "port": 27017,
+    "database": "iot_test",
+    "useNewUrlParser": true,
+    "useUnifiedTopology": true
+  }
+}

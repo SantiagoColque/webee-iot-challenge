@@ -1,156 +1,41 @@
-# 🧠 IoT Dashboard Challenge
+![act-logo](https://raw.githubusercontent.com/wiki/nektos/act/img/logo-150.png)
 
-Una aplicación **fullstack** desarrollada con **LoopBack**, **MongoDB** y **Angular** para gestionar dispositivos IoT, simular el envío de datos de sensores y visualizar información en tiempo real.
+# Overview [![push](https://github.com/nektos/act/workflows/push/badge.svg?branch=master&event=push)](https://github.com/nektos/act/actions) [![Go Report Card](https://goreportcard.com/badge/github.com/nektos/act)](https://goreportcard.com/report/github.com/nektos/act) [![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners)
 
-## 🚀 Inicio Rápido
+> "Think globally, `act` locally"
 
-### Prerrequisitos
-- Docker y Docker Compose
-- Git
+Run your [GitHub Actions](https://developer.github.com/actions/) locally! Why would you want to do this? Two reasons:
 
-### Instalación
+- **Fast Feedback** - Rather than having to commit/push every time you want to test out the changes you are making to your `.github/workflows/` files (or for any changes to embedded GitHub actions), you can use `act` to run the actions locally. The [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables) and [filesystem](https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners#filesystems-on-github-hosted-runners) are all configured to match what GitHub provides.
+- **Local Task Runner** - I love [make](<https://en.wikipedia.org/wiki/Make_(software)>). However, I also hate repeating myself. With `act`, you can use the GitHub Actions defined in your `.github/workflows/` to replace your `Makefile`!
 
-```bash
-# Clonar el repositorio
-git clone <repository-url>
-cd webee-iot-challenge
+> [!TIP]
+> **Now Manage and Run Act Directly From VS Code!**<br/>
+> Check out the [GitHub Local Actions](https://sanjulaganepola.github.io/github-local-actions-docs/) Visual Studio Code extension which allows you to leverage the power of `act` to run and test workflows locally without leaving your editor.
 
-# Levantar todos los servicios
-docker compose up -d
+# How Does It Work?
 
-# Verificar que todo funciona
-curl http://localhost:3000/api/Devices
-```
+When you run `act` it reads in your GitHub Actions from `.github/workflows/` and determines the set of actions that need to be run. It uses the Docker API to either pull or build the necessary images, as defined in your workflow files and finally determines the execution path based on the dependencies that were defined. Once it has the execution path, it then uses the Docker API to run containers for each action based on the images prepared earlier. The [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables) and [filesystem](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#file-systems) are all configured to match what GitHub provides.
 
-### Servicios Disponibles
+Let's see it in action with a [sample repo](https://github.com/cplee/github-actions-demo)!
 
-| Servicio | URL | Descripción |
-|----------|-----|-------------|
-| **Backend API** | http://localhost:3000/api | API REST de LoopBack |
-| **API Explorer** | http://localhost:3000/explorer | Documentación interactiva |
-| **Frontend** | http://localhost:4200 | Aplicación Angular |
-| **MongoDB** | localhost:27017 | Base de datos |
+![Demo](https://raw.githubusercontent.com/wiki/nektos/act/quickstart/act-quickstart-2.gif)
 
-## 🏗️ Arquitectura
+# Act User Guide
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Database      │
-│   Angular 8     │◄──►│   LoopBack 3    │◄──►│   MongoDB       │
-│   Port 4200     │    │   Port 3000     │    │   Port 27017    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+Please look at the [act user guide](https://nektosact.com) for more documentation.
 
-## 📊 Modelos de Datos
+# Support
 
-### Device (Dispositivo)
-- `name`: Nombre del dispositivo
-- `type`: Tipo de dispositivo
-- `location`: Ubicación
-- `status`: Estado (active/inactive)
-- `createdAt`: Fecha de creación
+Need help? Ask in [discussions](https://github.com/nektos/act/discussions)!
 
-### Port (Puerto/Sensor)
-- `name`: Nombre del sensor
-- `unit`: Unidad de medida
-- `field`: Identificador lógico
-- `lastValue`: Último valor reportado
-- `deviceId`: Relación con dispositivo
+# Contributing
 
-### DeviceLog (Registro)
-- `deviceId`: ID del dispositivo
-- `portId`: ID del puerto
-- `value`: Valor del sensor
-- `timestamp`: Fecha y hora
-- `data`: Datos adicionales
+Want to contribute to act? Awesome! Check out the [contributing guidelines](CONTRIBUTING.md) to get involved.
 
-## 🔌 API Endpoints
+## Manually building from source
 
-### Dispositivos
-```bash
-GET    /api/Devices          # Listar dispositivos
-POST   /api/Devices          # Crear dispositivo
-GET    /api/Devices/:id      # Obtener dispositivo
-PUT    /api/Devices/:id      # Actualizar dispositivo
-DELETE /api/Devices/:id      # Eliminar dispositivo
-POST   /api/Devices/:id/report # Simular datos
-```
-
-### Puertos
-```bash
-GET    /api/Ports            # Listar puertos
-POST   /api/Ports            # Crear puerto
-GET    /api/Ports/:id        # Obtener puerto
-PUT    /api/Ports/:id        # Actualizar puerto
-DELETE /api/Ports/:id        # Eliminar puerto
-```
-
-### Logs
-```bash
-GET    /api/DeviceLogs       # Listar logs
-POST   /api/DeviceLogs       # Crear log
-GET    /api/DeviceLogs/:id   # Obtener log
-```
-
-## 🧪 Testing
-
-```bash
-# Tests del backend
-cd backend
-npm test
-
-# Tests del frontend
-cd frontend
-npm test
-```
-
-## 🚀 Desarrollo
-
-### Estructura de Branches
-- `main`: Producción
-- `develop`: Desarrollo
-- `feature/*`: Nuevas funcionalidades
-- `hotfix/*`: Correcciones urgentes
-
-### Commits
-Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat:` Nueva funcionalidad
-- `fix:` Corrección de bug
-- `docs:` Documentación
-- `test:` Tests
-- `refactor:` Refactoring
-
-## 📝 Ejemplo de Uso
-
-### 1. Crear un dispositivo
-```bash
-curl -X POST http://localhost:3000/api/Devices \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Weather Station", "type": "temperature-sensor", "location": "Office"}'
-```
-
-### 2. Agregar un sensor
-```bash
-curl -X POST http://localhost:3000/api/Ports \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Temperature", "unit": "°C", "field": "temperature", "deviceId": "1"}'
-```
-
-### 3. Simular datos
-```bash
-curl -X POST http://localhost:3000/api/Devices/1/report \
-  -H "Content-Type: application/json" \
-  -d '{"temperature": 25.3}'
-```
-
-## 🛠️ Tecnologías
-
-- **Backend**: LoopBack 3, Node.js, MongoDB
-- **Frontend**: Angular 8, Angular Material
-- **DevOps**: Docker, Docker Compose
-- **Testing**: Jest, Jasmine/Karma
-- **CI/CD**: GitHub Actions
-
-## 📄 Licencia
-
-MIT License
+- Install Go tools 1.20+ - (<https://golang.org/doc/install>)
+- Clone this repo `git clone git@github.com:nektos/act.git`
+- Run unit tests with `make test`
+- Build and install: `make install`

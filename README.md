@@ -1,41 +1,174 @@
-![act-logo](https://raw.githubusercontent.com/wiki/nektos/act/img/logo-150.png)
+# 🌐 Webee IoT Challenge
 
-# Overview [![push](https://github.com/nektos/act/workflows/push/badge.svg?branch=master&event=push)](https://github.com/nektos/act/actions) [![Go Report Card](https://goreportcard.com/badge/github.com/nektos/act)](https://goreportcard.com/report/github.com/nektos/act) [![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners)
+Sistema IoT completo para gestión de dispositivos y sensores con simulación en tiempo real.
 
-> "Think globally, `act` locally"
+## 🚀 Características
 
-Run your [GitHub Actions](https://developer.github.com/actions/) locally! Why would you want to do this? Two reasons:
+- **Backend LoopBack 3**: API REST completa con modelos de datos
+- **Base de datos MongoDB**: Almacenamiento de dispositivos y logs
+- **Simulación de sensores**: Endpoint `/report` para datos en tiempo real
+- **Docker Compose**: Entorno de desarrollo completo
+- **Tests automatizados**: Jest + Supertest para backend
+- **CI/CD**: GitHub Actions para releases
 
-- **Fast Feedback** - Rather than having to commit/push every time you want to test out the changes you are making to your `.github/workflows/` files (or for any changes to embedded GitHub actions), you can use `act` to run the actions locally. The [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables) and [filesystem](https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners#filesystems-on-github-hosted-runners) are all configured to match what GitHub provides.
-- **Local Task Runner** - I love [make](<https://en.wikipedia.org/wiki/Make_(software)>). However, I also hate repeating myself. With `act`, you can use the GitHub Actions defined in your `.github/workflows/` to replace your `Makefile`!
+## 📊 Modelos de Datos
 
-> [!TIP]
-> **Now Manage and Run Act Directly From VS Code!**<br/>
-> Check out the [GitHub Local Actions](https://sanjulaganepola.github.io/github-local-actions-docs/) Visual Studio Code extension which allows you to leverage the power of `act` to run and test workflows locally without leaving your editor.
+### Device (Dispositivo)
+- `name`: Nombre del dispositivo
+- `type`: Tipo de sensor
+- `location`: Ubicación física
+- `status`: Estado (active/inactive)
 
-# How Does It Work?
+### Port (Puerto/Sensor)
+- `name`: Nombre del sensor
+- `unit`: Unidad de medida
+- `field`: Campo de datos
+- `lastValue`: Último valor registrado
 
-When you run `act` it reads in your GitHub Actions from `.github/workflows/` and determines the set of actions that need to be run. It uses the Docker API to either pull or build the necessary images, as defined in your workflow files and finally determines the execution path based on the dependencies that were defined. Once it has the execution path, it then uses the Docker API to run containers for each action based on the images prepared earlier. The [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables) and [filesystem](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#file-systems) are all configured to match what GitHub provides.
+### DeviceLog (Log de Datos)
+- `deviceId`: ID del dispositivo
+- `portId`: ID del puerto
+- `value`: Valor del sensor
+- `timestamp`: Fecha y hora
+- `data`: Datos adicionales
 
-Let's see it in action with a [sample repo](https://github.com/cplee/github-actions-demo)!
+## 🛠️ Instalación y Uso
 
-![Demo](https://raw.githubusercontent.com/wiki/nektos/act/quickstart/act-quickstart-2.gif)
+### Prerrequisitos
+- Docker Desktop
+- Git
 
-# Act User Guide
+### Desarrollo
+```bash
+# Clonar el repositorio
+git clone <repository-url>
+cd webee-iot-challenge
 
-Please look at the [act user guide](https://nektosact.com) for more documentation.
+# Levantar el entorno de desarrollo
+docker compose --profile dev up -d
 
-# Support
+# Verificar que funciona
+curl http://localhost:3000/api/Devices
+```
 
-Need help? Ask in [discussions](https://github.com/nektos/act/discussions)!
+### Testing
+```bash
+# Ejecutar tests del backend
+docker compose --profile test up backend-test
 
-# Contributing
+# Ver logs de tests
+docker logs backend-test
+```
 
-Want to contribute to act? Awesome! Check out the [contributing guidelines](CONTRIBUTING.md) to get involved.
+## 🌐 Endpoints Principales
 
-## Manually building from source
+### Dispositivos
+- `GET /api/Devices` - Listar dispositivos
+- `POST /api/Devices` - Crear dispositivo
+- `GET /api/Devices/{id}` - Obtener dispositivo
+- `PUT /api/Devices/{id}` - Actualizar dispositivo
+- `DELETE /api/Devices/{id}` - Eliminar dispositivo
 
-- Install Go tools 1.20+ - (<https://golang.org/doc/install>)
-- Clone this repo `git clone git@github.com:nektos/act.git`
-- Run unit tests with `make test`
-- Build and install: `make install`
+### Sensores
+- `GET /api/Ports` - Listar sensores
+- `POST /api/Ports` - Crear sensor
+- `GET /api/Devices/{id}/ports` - Sensores de un dispositivo
+
+### Simulación
+- `POST /api/Devices/{id}/report` - Reportar datos de sensores
+
+### Logs
+- `GET /api/DeviceLogs` - Listar todos los logs
+- `GET /api/Devices/{id}/deviceLogs` - Logs de un dispositivo
+
+## 🧪 Ejemplo de Uso
+
+### 1. Crear un dispositivo
+```bash
+curl -X POST http://localhost:3000/api/Devices \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Sensor Temperatura",
+    "type": "temperature-sensor",
+    "location": "Oficina Principal",
+    "status": "active"
+  }'
+```
+
+### 2. Crear un sensor
+```bash
+curl -X POST http://localhost:3000/api/Ports \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Sensor Temperatura",
+    "unit": "°C",
+    "field": "temperature",
+    "lastValue": 0,
+    "deviceId": "ID_DEL_DEVICE"
+  }'
+```
+
+### 3. Simular datos
+```bash
+curl -X POST http://localhost:3000/api/Devices/ID_DEL_DEVICE/report \
+  -H "Content-Type: application/json" \
+  -d '{
+    "temperature": 25.5,
+    "humidity": 60.2
+  }'
+```
+
+## 🔧 Configuración
+
+### Variables de Entorno
+- `MONGODB_URL`: URL de conexión a MongoDB
+- `PORT`: Puerto del backend (default: 3000)
+- `HOST`: Host del backend (default: 0.0.0.0)
+
+### Docker Compose Profiles
+- `dev`: Entorno de desarrollo completo
+- `test`: Solo testing del backend
+
+## 📚 API Explorer
+
+Accede a la documentación interactiva en:
+```
+http://localhost:3000/explorer
+```
+
+## 🏗️ Arquitectura
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend       │    │   MongoDB       │
+│   (Angular)     │◄──►│   (LoopBack)    │◄──►│   (Database)    │
+│   Port: 4200    │    │   Port: 3000    │    │   Port: 27017   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## 🚀 Roadmap
+
+- [x] Backend con modelos y API
+- [x] Simulación de sensores
+- [x] Tests automatizados
+- [x] Docker Compose
+- [ ] Frontend Angular
+- [ ] Interfaz de usuario
+- [ ] Gráficos en tiempo real
+- [ ] Alertas y notificaciones
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📞 Contacto
+
+Para preguntas o sugerencias, abre un issue en el repositorio.

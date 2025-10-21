@@ -1,4 +1,5 @@
 const request = require('supertest')
+const { app } = require('./setup')
 
 describe('Device Model', () => {
   let deviceId
@@ -12,7 +13,7 @@ describe('Device Model', () => {
     }
 
     const response = await request(app)
-      .post('/api/Devices')
+      .post('/api/devices')
       .send(deviceData)
       .expect(200)
 
@@ -27,16 +28,16 @@ describe('Device Model', () => {
 
   test('should get all devices', async () => {
     const response = await request(app)
-      .get('/api/Devices')
+      .get('/api/devices')
       .expect(200)
 
     expect(Array.isArray(response.body)).toBe(true)
-    expect(response.body.length).toBeGreaterThan(0)
+    expect(response.body.length).toBeGreaterThanOrEqual(1)
   })
 
   test('should get device by id', async () => {
     const response = await request(app)
-      .get(`/api/Devices/${deviceId}`)
+      .get(`/api/devices/${deviceId}`)
       .expect(200)
 
     expect(response.body.id).toBe(deviceId)
@@ -50,7 +51,7 @@ describe('Device Model', () => {
     }
 
     const response = await request(app)
-      .put(`/api/Devices/${deviceId}`)
+      .patch(`/api/devices/${deviceId}`)
       .send(updateData)
       .expect(200)
 
@@ -60,12 +61,12 @@ describe('Device Model', () => {
 
   test('should delete device', async () => {
     await request(app)
-      .delete(`/api/Devices/${deviceId}`)
-      .expect(204)
+      .delete(`/api/devices/${deviceId}`)
+      .expect(200)
 
     // Verify device is deleted
     await request(app)
-      .get(`/api/Devices/${deviceId}`)
+      .get(`/api/devices/${deviceId}`)
       .expect(404)
   })
 })

@@ -68,4 +68,58 @@ module.exports = function(Device) {
     http: { path: '/:deviceId/report', verb: 'post' },
     description: 'Report sensor data for a device'
   });
+
+  Device.getLogs = function(deviceId, limit, cb) {
+    // Buscar el dispositivo
+    Device.findById(deviceId, function(err, device) {
+      if (err) return cb(err);
+      if (!device) return cb(new Error('Device not found'));
+      
+      const DeviceLog = Device.app.models.DeviceLog;
+      const Port = Device.app.models.Port;
+      
+      // Configurar opciones de consulta
+      const queryOptions = {
+        where: { deviceId: deviceId },
+        order: 'timestamp DESC',
+        limit: limit || 50,
+        include: ['port']
+      };
+      
+      // Buscar logs del dispositivo
+      DeviceLog.find(queryOptions, function(err, logs) {
+        if (err) return cb(err);
+        
+        // Formatear la respuesta con información del port
+        const formattedLogs = logs.map(log => ({
+          id: log.id,
+          deviceId: log.deviceId,
+          portId: log.portId,
+          portName: log.port ? log.port.name : 'Unknown',
+          portField: log.port ? log.port.field : 'unknown',
+          portUnit: log.port ? log.port.unit : '',
+          value: log.value,
+          timestamp: log.timestamp,
+          data: log.data
+        }));
+        
+        cb(null, {
+          deviceId: deviceId,
+          deviceName: device.name,
+          logs: formattedLogs,
+          total: formattedLogs.length
+        });
+      });
+    });
+  };
+  
+  Device.remoteMethod('getLogs', {
+    accepts: [
+      { arg: 'deviceId', type: 'string', required: true, http: { source: 'path' } },
+      { arg: 'limit', type: 'number', http: { source: 'query' } }
+    ],
+    returns: { arg: 'result', type: 'object' },
+    http: { path: '/:deviceId/logs', verb: 'get' },
+    description: 'Get device logs with port information'
+  });
 };

@@ -1,0 +1,40 @@
+{
+  "name": "Port",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "unit": {
+      "type": "string",
+      "required": true
+    },
+    "field": {
+      "type": "string",
+      "required": true
+    },
+    "lastValue": {
+      "type": "number",
+      "default": 0
+    },
+    "deviceId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "device": {
+      "type": "belongsTo",
+      "model": "Device",
+      "foreignKey": "deviceId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

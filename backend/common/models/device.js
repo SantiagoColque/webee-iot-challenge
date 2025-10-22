@@ -78,36 +78,47 @@ module.exports = function(Device) {
       const DeviceLog = Device.app.models.DeviceLog;
       const Port = Device.app.models.Port;
       
-      // Configurar opciones de consulta
-      const queryOptions = {
+      // Buscar logs del dispositivo
+      DeviceLog.find({
         where: { deviceId: deviceId },
         order: 'timestamp DESC',
-        limit: limit || 50,
-        include: ['port']
-      };
-      
-      // Buscar logs del dispositivo
-      DeviceLog.find(queryOptions, function(err, logs) {
+        limit: limit || 50
+      }, function(err, logs) {
         if (err) return cb(err);
         
-        // Formatear la respuesta con información del port
-        const formattedLogs = logs.map(log => ({
-          id: log.id,
-          deviceId: log.deviceId,
-          portId: log.portId,
-          portName: log.port ? log.port.name : 'Unknown',
-          portField: log.port ? log.port.field : 'unknown',
-          portUnit: log.port ? log.port.unit : '',
-          value: log.value,
-          timestamp: log.timestamp,
-          data: log.data
-        }));
-        
-        cb(null, {
-          deviceId: deviceId,
-          deviceName: device.name,
-          logs: formattedLogs,
-          total: formattedLogs.length
+        // Buscar información de los ports por separado
+        const portIds = [...new Set(logs.map(log => log.portId))];
+        Port.find({ where: { id: { inq: portIds } } }, function(err, ports) {
+          if (err) return cb(err);
+          
+          // Crear mapa de ports para lookup rápido
+          const portMap = {};
+          ports.forEach(port => {
+            portMap[port.id] = port;
+          });
+          
+          // Formatear la respuesta con información del port
+          const formattedLogs = logs.map(log => {
+            const port = portMap[log.portId];
+            return {
+              id: log.id,
+              deviceId: log.deviceId,
+              portId: log.portId,
+              portName: port ? port.name : 'Unknown',
+              portField: port ? port.field : 'unknown',
+              portUnit: port ? port.unit : '',
+              value: log.value,
+              timestamp: log.timestamp,
+              data: log.data
+            };
+          });
+          
+          cb(null, {
+            deviceId: deviceId,
+            deviceName: device.name,
+            logs: formattedLogs,
+            total: formattedLogs.length
+          });
         });
       });
     });

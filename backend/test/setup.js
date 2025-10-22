@@ -14,11 +14,25 @@ beforeAll(async () => {
   // Limpiar base de datos de test
   await app.dataSources.db.autoupdate();
   
-  // FORZAR la carga del archivo device.js
+  // FORZAR la carga del archivo device.js SIEMPRE
   const deviceModel = app.models.Device;
-  if (deviceModel && !deviceModel.report) {
+  if (deviceModel) {
     console.log('Forzando carga de device.js...');
-    require('../common/models/device.js')(deviceModel);
+    try {
+      require('../common/models/device.js')(deviceModel);
+      console.log('device.js cargado exitosamente');
+    } catch (error) {
+      console.error('Error cargando device.js:', error);
+    }
+  }
+  
+  // Verificar que los métodos estén disponibles
+  if (deviceModel && (!deviceModel.report || !deviceModel.getLogs)) {
+    console.error('ERROR: Métodos personalizados no están disponibles');
+    console.log('report disponible:', !!deviceModel.report);
+    console.log('getLogs disponible:', !!deviceModel.getLogs);
+  } else {
+    console.log('✅ Métodos personalizados cargados correctamente');
   }
   
   // Iniciar servidor en puerto dinámico para evitar conflictos
@@ -37,14 +51,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (app && app.dataSources) {
-    // Limpiar datos de test
-    const Device = app.models.Device;
-    const Port = app.models.Port;
-    const DeviceLog = app.models.DeviceLog;
-    
-    await Device.deleteAll();
-    await Port.deleteAll();
-    await DeviceLog.deleteAll();
+    // NO limpiar datos automáticamente - cada test debe limpiar sus propios datos
     
     // Desconectar de la base de datos
     if (app.dataSources.db.connected) {

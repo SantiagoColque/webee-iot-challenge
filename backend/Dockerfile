@@ -12,4 +12,6 @@ COPY . .
 
 # Exponer y correr
 EXPOSE 3000
-CMD ["npm", "start"]
+
+# Usar exec para manejar señales correctamente
+CMD ["node", "server/server.js"]

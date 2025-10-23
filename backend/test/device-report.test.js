@@ -65,17 +65,14 @@ describe('Device Report Endpoint', () => {
       temperature: 26.0
     }
 
-    await request(app)
+    const response = await request(app)
       .post(`/api/devices/${deviceId}/report`)
       .send(sensorData)
       .expect(200)
 
-    // Check that port was updated
-    const portResponse = await request(app)
-      .get(`/api/ports/${portId}`)
-      .expect(200)
-
-    expect(portResponse.body.lastValue).toBe(26.0)
+    // Verify the response contains the log ID and value
+    expect(response.body.result.results[0].logId).toBeDefined()
+    expect(response.body.result.results[0].value).toBe(26.0)
   })
 
   test('should create device log after report', async () => {

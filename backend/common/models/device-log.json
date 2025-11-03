@@ -11,12 +11,10 @@
       "required": true
     },
     "portId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "value": {
-      "type": "number",
-      "required": true
+      "type": "number"
     },
     "timestamp": {
       "type": "date",

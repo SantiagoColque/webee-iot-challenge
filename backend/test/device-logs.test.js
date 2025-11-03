@@ -22,7 +22,7 @@ describe('Device Logs Endpoint', () => {
     const portResponse = await request(app)
       .post('/api/ports')
       .send({
-        name: 'Temperature Sensor',
+        name: 'temperature',
         unit: '°C',
         field: 'temperature',
         lastValue: 0,
@@ -73,12 +73,14 @@ describe('Device Logs Endpoint', () => {
       .expect(200)
 
     const firstLog = response.body.result.logs[0]
-    expect(firstLog.portId).toBe(portId)
-    expect(firstLog.portName).toBeDefined()
-    expect(firstLog.portField).toBe('temperature')
-    expect(firstLog.portUnit).toBe('°C')
-    expect(firstLog.value).toBeDefined()
     expect(firstLog.timestamp).toBeDefined()
+    expect(firstLog.fields).toBeDefined()
+    const tempField = firstLog.fields.find(f => f.portField === 'temperature' || f.field === 'temperature')
+    expect(tempField).toBeDefined()
+    expect(tempField.portName).toBeDefined()
+    expect(tempField.portField || tempField.field).toBe('temperature')
+    expect(tempField.portUnit).toBe('°C')
+    expect(tempField.value).toBeDefined()
   })
 
   test('should return logs ordered by timestamp DESC', async () => {

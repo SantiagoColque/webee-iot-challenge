@@ -22,7 +22,7 @@ describe('Device Report Endpoint', () => {
     const portResponse = await request(app)
       .post('/api/ports')
       .send({
-        name: 'Temperature Sensor',
+        name: 'temperature',
         unit: '°C',
         field: 'temperature',
         lastValue: 0,
@@ -54,10 +54,10 @@ describe('Device Report Endpoint', () => {
 
     expect(response.body.result).toBeDefined()
     expect(response.body.result.deviceId).toBe(deviceId)
-    expect(response.body.result.results).toBeDefined()
-    expect(response.body.result.results.length).toBe(1)
-    expect(response.body.result.results[0].field).toBe('temperature')
-    expect(response.body.result.results[0].value).toBe(25.5)
+    expect(response.body.result.fields).toBeDefined()
+    expect(response.body.result.fields.length).toBe(1)
+    expect(response.body.result.fields[0].field).toBe('temperature')
+    expect(response.body.result.fields[0].value).toBe(25.5)
   })
 
   test('should update port lastValue after report', async () => {
@@ -71,8 +71,8 @@ describe('Device Report Endpoint', () => {
       .expect(200)
 
     // Verify the response contains the log ID and value
-    expect(response.body.result.results[0].logId).toBeDefined()
-    expect(response.body.result.results[0].value).toBe(26.0)
+    expect(response.body.result.logId).toBeDefined()
+    expect(response.body.result.fields[0].value).toBe(26.0)
   })
 
   test('should create device log after report', async () => {
@@ -86,8 +86,8 @@ describe('Device Report Endpoint', () => {
       .expect(200)
 
     // Verify the response contains the log ID
-    expect(response.body.result.results[0].logId).toBeDefined()
-    expect(response.body.result.results[0].value).toBe(27.0)
+    expect(response.body.result.logId).toBeDefined()
+    expect(response.body.result.fields[0].value).toBe(27.0)
   })
 
   test('should return error for non-existent device', async () => {
@@ -111,6 +111,6 @@ describe('Device Report Endpoint', () => {
       .send(sensorData)
       .expect(200)
 
-    expect(response.body.result.results[0].error).toBe('Port not found')
+    expect(response.body.result.fields[0].error).toBe('Port not found')
   })
 })

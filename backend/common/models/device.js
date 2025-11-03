@@ -22,29 +22,18 @@ module.exports = function(Device) {
       })
     );
 
-    // Construir data válida (solo campos que correspondan a un Port existente)
-    const validData = {};
+    // Construir listado de fields y mantener TODOS los datos reportados
     const fields = Object.keys(data).map(fieldName => {
       const port = ports.find(p => p.name === fieldName);
       const base = { field: fieldName, value: data[fieldName] };
       if (!port) return { ...base, error: 'Port not found' };
-      validData[fieldName] = data[fieldName];
       return base;
     });
 
-    // No crear log si no hay ningún campo válido
-    if (Object.keys(validData).length === 0) {
-      return {
-        deviceId: deviceId,
-        timestamp: new Date(),
-        fields: fields
-      };
-    }
-
-    // Crear un único log con solo los campos válidos
+    // Crear un único log con TODOS los campos reportados (incluidos los que no matchean Port)
     const log = await DeviceLog.create({
       deviceId: deviceId,
-      data: validData,
+      data: data,
       timestamp: new Date()
     });
 
